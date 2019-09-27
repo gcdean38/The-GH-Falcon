@@ -3,12 +3,25 @@
 <head>
     <title>Weekly Summary of Published Articles</title>
 <style>
+.title {
+	font-family: 'Times New Roman', Times, serif;
+	font-size: 30px;
+	font-weight: bold;
+	color: darkgreen;
+}
+.byline {
+	font-family: 'Courier New', Courier, monospace;
+	font-style: italic;
+}
+.source {
+	font-family: 'Times New Roman', Times, serif;
 
+}
 .rectangle {
-	fill: steelblue;
+	fill: limegreen;
 }
 .rectangle:hover {
-	fill: orange;
+	fill: darkgreen;
 }
 .axis {
   font: 10px sans-serif;
@@ -37,7 +50,7 @@ var svg = d3.select("body").append("svg")
 	.append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vR-KGUd0iARVrvIVo90xwM61IqUlYqf5SQTXBUDCVfh7-K5l0kAbtlt9Ybj_M1hWwHuVwNOhKWtQXue/pub?gid=0&single=true&output=csv", function(error, data){
+d3.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vTeoM07R4iumfXiIVxr9fQ3-ipJiS1aKdtqwuwkJE3uJlW8iv2__7FptI1_Vt7DWmN-OESyexNqeHL8/pub?gid=0&single=true&output=csv", function(error, data){
 
 	// filter year
 	//var data = data.filter(function(d){return d.Year == '2012';});
