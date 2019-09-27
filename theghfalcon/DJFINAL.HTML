@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+
+<!-- Create a div where the graph will take place -->
+<div id="jones" style="position:relative; top: 0px; left: 0px; height: 200px; width: 200px;"></div>
+<div id="manning" style="position:relative; top: -200px; left: 300px; height: 200px; width: 200px;"></div>
+<div id="legend" style="position:relative; top: -125px; left: 225px; height: 200px; width: 200px;"></div>
+<style>
+    body {
+            font-family: 'Open Sans', sans-serif;
+    }
+    .title {
+        font-family: "arial black" ;
+    }
+    text.source {
+            font-size: 10px;
+        }
+        
+    text.byline {
+        font-size: 12px;
+        font-style: italic;
+        font-weight: bold;
+        font-family: 'Courier New', Courier, monospace;
+    }
+
+    text.label {
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+</style>
+<script>
+
+var jones = [
+                    {
+                    xCat: "Left",
+                    yCat: "<5 Yards",
+                    attempts: 8,
+                    },
+                    {
+                    xCat: "Middle",
+                    yCat: "<5 Yards",
+                    attempts: 28,
+                    },
+                    {
+                    xCat: "Right",
+                    yCat: "<5 Yards",
+                    attempts: 17,
+                    },
+                    {
+                    xCat: "Left",
+                    yCat: "5-15 Yards",
+                    attempts: 11,
+                    },
+                    {
+                    xCat: "Middle",
+                    yCat: "5-15 Yards",
+                    attempts: 6,
+                    },
+                    {
+                    xCat: "Right",
+                    yCat: "5-15 Yards",
+                    attempts: 8,
+                    },
+                    {
+                    xCat: "Left",
+                    yCat: "15+ Yards",
+                    attempts: 6,
+                    },
+                    {
+                    xCat: "Middle",
+                    yCat: "15+ Yards",
+                    attempts: 8,
+                    },
+                    {
+                    xCat: "Right",
+                    yCat: "15+ Yards",
+                    attempts: 8,
+                    }
+                ];
+
+
+
+        // set the dimensions and margins of the graph
+        var margin = {top: 40, right: 10, bottom: 100, left: 70},
+          width = 200 //- margin.left //- margin.right,
+          height = 200 //- margin.top //- margin.bottom;
+        
+        // append the svg object to the body of the page
+        var svg = d3.select("#jones")
+        //.attr("transform","translate(100,50)")
+        .append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+          .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+        
+        // Labels of row and columns
+        var myGroups = ["Left", "Middle", "Right"]
+        var myVars = ["<5 Yards", "5-15 Yards", "15+ Yards"]
+        
+        // Build X scales and axis:
+        var x = d3.scaleBand()
+          .range([ 0, width ])
+          .domain(myGroups)
+          .padding(0.01);
+        svg.append("g")
+          .attr("transform", "translate(0," + height + ")")
+          .call(d3.axisBottom(x))
+        
+        // Build X scales and axis:
+        var y = d3.scaleBand()
+          .range([ height, 0 ])
+          .domain(myVars)
+          .padding(0.01);
+        svg.append("g")
+          .call(d3.axisLeft(y));
+        
+        // Build color scale
+        var myColor = d3.scaleLinear()
+          .range(["lightblue", "navy"])
+          .domain([1,30])
+        
+        //Read the data
+        
+        svg.selectAll()
+            .data(jones, function(d) {return d.xCat+':'+d.yCat;})
+            .enter()
+            .append("rect")
+            .attr("x", function(d) { return x(d.xCat) })
+            .attr("y", function(d) { return y(d.yCat) })
+            .attr("width", x.bandwidth() )
+            .attr("height", y.bandwidth() )
+            .style("fill", function(d) { return myColor(d.attempts)} )
+            
+        svg.append('text')
+                .attr('class', 'title')
+                .attr('y', -margin.right )
+                .attr('x', width/2)
+                .attr('text-anchor', 'middle')
+                .text('Daniel Jones')
+        
+        svg.append('text')
+            .attr('class', 'byline')
+            .attr('y', height+60)
+            .attr('x', width-145 )
+            .attr('text-anchor', 'middle')
+            .attr('transform','translate(0,0)')
+            .text('By: Geoffrey Dean')
+
+       
+            var jones = [
+                {
+                xCat: "Left",
+                yCat: "<5 Yards",
+                attempts: 13,
+                comp: 67
+                },
+                {
+                xCat: "Middle",
+                yCat: "<5 Yards",
+                attempts: 7,
+                comp: 100
+                },
+                {
+                xCat: "Right",
+                yCat: "<5 Yards",
+                attempts: 24,
+                comp: 36
+                },
+                {
+                xCat: "Left",
+                yCat: "5-15 Yards",
+                attempts: 24,
+                comp: 73
+                },
+                {
+                xCat: "Middle",
+                yCat: "5-15 Yards",
+                attempts: 4,
+                comp: 50
+                },
+                {
+                xCat: "Right",
+                yCat: "5-15 Yards",
+                attempts: 13,
+                comp: 100
+                },
+                {
+                xCat: "Left",
+                yCat: "15+ Yards",
+                attempts: 4,
+                comp: 0
+                },
+                {
+                xCat: "Middle",
+                yCat: "15+ Yards",
+                attempts: 2,
+                comp: 0
+                },
+                {
+                xCat: "Right",
+                yCat: "15+ Yards",
+                attempts: 7,
+                comp: 33
+                }
+            ];
+
+
+
+        // set the dimensions and margins of the graph
+        var margin = {top: 40, right: 10, bottom: 70, left: 70},
+          width = 200 //- margin.left //- margin.right,
+          height = 200 //- margin.top //- margin.bottom;
+        
+        // append the svg object to the body of the page
+        var svg = d3.select("#manning")
+        //.attr("transform","translate(100,50)")
+        .append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+          .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+        
+        // Labels of row and columns
+        var myGroups = ["Left", "Middle", "Right"]
+        var myVars = ["<5 Yards", "5-15 Yards", "15+ Yards"]
+        
+        // Build X scales and axis:
+        var x = d3.scaleBand()
+          .range([ 0, width ])
+          .domain(myGroups)
+          .padding(0.01);
+        svg.append("g")
+          .attr("transform", "translate(0," + height + ")")
+          .call(d3.axisBottom(x))
+        
+        // Build X scales and axis:
+        var y = d3.scaleBand()
+          .range([ height, 0 ])
+          .domain(myVars)
+          .padding(0.01);
+        svg.append("g")
+          .call(d3.axisLeft(y));
+        
+        // Build color scale
+        var myColor = d3.scaleLinear()
+          .range(["lightblue", "navy"])
+          .domain([1,30])
+        
+        //Read the data
+        
+        svg.selectAll()
+            .data(jones, function(d) {return d.xCat+':'+d.yCat;})
+            .enter()
+            .append("rect")
+            .attr("x", function(d) { return x(d.xCat) })
+            .attr("y", function(d) { return y(d.yCat) })
+            .attr("width", x.bandwidth() )
+            .attr("height", y.bandwidth() )
+            .style("fill", function(d) { return myColor(d.attempts)} )
+
+        svg.append('text')
+            .attr('class', 'source')
+            .attr('y', height+60)
+            .attr('x', width-45 )
+            .attr('text-anchor', 'middle')
+            .attr('transform','translate(0,0)')
+            .text('Source: NFL, 2019')
+            
+        
+ 
+            
+        svg.append('text')
+                .attr('class', 'title')
+                .attr('y', -margin.right )
+                .attr('x', width/2)
+                .attr('text-anchor', 'middle')
+                .text('Eli Manning')
+
+        var key = d3.select("#legend")
+            .append("svg")
+            .attr("width", 200)
+            .attr("height", 100)
+            .attr("transform", "translate(10,-10)")
+
+        var legend = key.append("defs")
+            .append("svg:linearGradient")
+            .attr("id", "gradient")
+            .attr("x1", "0%")
+            .attr("y1", "100%")
+            .attr("x2", "100%")
+            .attr("y2", "100%")
+            .attr("spreadMethod", "pad");
+
+        legend.append("stop")
+            .attr("offset", "0%")
+            .attr("stop-color", "LightBlue")
+            .attr("stop-opacity", 1);
+
+        legend.append("stop")
+            .attr("offset", "33%")
+            .attr("stop-color", "#1F45FC")
+            .attr("stop-opacity", 1);
+
+        legend.append("stop")
+            .attr("offset", "66%")
+            .attr("stop-color", "#0020C2")
+            .attr("stop-opacity", 1);
+
+        legend.append("stop")
+            .attr("offset", "100%")
+            .attr("stop-color", "DarkBlue")
+            .attr("stop-opacity", 1);
+
+        key.append("rect")
+            .attr("width", 150)
+            .attr("height", 20)
+            .style("fill", "url(#gradient)")
+            .attr("transform", "translate(10,10)");   
+            
+        var y = d3.scaleLinear()
+                .range([0,150])
+                .domain([0, 30]);
+            
+
+            var yAxis = d3.axisBottom()
+                .scale(y)
+                .ticks(5);
+        
+            key.append("g")
+                .attr("class", "y axis")
+                .attr("transform", "translate(10,30)")
+                .attr("width", 100)
+                .attr("height", 100)
+                .call(yAxis)
+            key.append("text")
+                .attr("class", "label")
+                //.attr("transform","translate(0)")
+                .attr("y", 65)
+                .attr("x", 90)
+                //.attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text("Pass Attempts");
+
+        svg.append('text')
+            .attr('class', 'source')
+            .attr('y', height+margin.bottom+50)
+            .attr('x', width - margin.left / 2)
+            .attr('text-anchor', 'middle')
+            .attr("transform","translate(-100,0)")
+            .text('Source: NFL, 2019')
+        </script>
