@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<head>
+    <title>Fight for 55 Scoreboard</title>
+</head>
+<style>
+
+.axis .domain {
+  display: none;
+}
+.scoreboard {
+    font-family:'didot', Courier, monospace, square;
+    font-size: 100px;
+    font-weight: bold;
+    
+}
+.byline {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    font-style: italic;
+}
+
+.source {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 12px;
+
+}
+.title {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 60px;
+    font-weight: bold;
+   
+}
+.winLine {
+  stroke: black;
+  stroke-width: 4px;
+  stroke-dasharray: 3,3;
+}
+
+.grid {
+    color: lightgrey;
+}
+.team{
+    font-family: didot;
+    font-size: 30px;
+    text-decoration: underline;
+    font-weight: bold;
+}
+.label {
+    font-family:Optima, sans-serif;
+    font-size: 13px;
+    font-weight: bold;
+}
+.subtitle{
+    font-style: italic;
+}
+.text {
+    font-family:Optima, sans-serif;
+
+}
+.board {
+    stroke-width: 3px;
+}
+</style>
+<svg width="960" height="700"></svg>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+
+var svg = d3.select("svg"),
+    margin = {top: 20, right: 40, bottom: 30, left: 40},
+    width = +svg.attr("width") - margin.left - margin.right,
+    height = +svg.attr("height") - margin.top - margin.bottom,
+    g = svg.append("g").attr("transform", "translate(70,350)");
+    s = svg.append("g").attr("transform", "translate(50,250)");
+
+
+
+var y = d3.scaleBand()			// x = d3.scaleBand()	
+    .rangeRound([0, 200])	// .rangeRound([0, width])
+    .paddingInner(0.05)
+    .align(0.1);
+
+var x = d3.scaleLinear()		// y = d3.scaleLinear()
+    .rangeRound([0, width]);	// .rangeRound([height, 0]);
+
+var z = d3.scaleOrdinal()
+    .range(["darkgreen", "grey", "skyblue"]);
+    formatHM = d3.timeFormat("%A, %B %e, %Y")
+
+    var d = new Date();
+    d.setDate(d.getDate())
+    currentTime = (formatHM(d));
+
+
+d3.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vSoYwTmHYcoTS8XTNr6ABb-nSQEpw3wojU4-X-_MqryQ4Sxe4D5-IoD7bYlVSddl06-VatJGhjqvt0A/pub?gid=0&single=true&output=csv", function(d, i, columns) {
+  for (i = 1,gh=0,pc=0, t = 0; i < columns.length; ++i)gh = d[columns[1]],pc = d[columns[3]], t += d[columns[i]] = +d[columns[i]];
+  d.total = t;
+d.gh = gh;
+d.pc = pc;
+  return d;
+}, function(error, data) {
+  if (error) throw error;
+  //console.log(d[0])
+//var GHHS = +d.GHHS
+  var keys = data.columns.slice(1);
+//console.log(GHHS)
+  //data.sort(function(a, b) { return b.total - a.total; });
+  y.domain(data.map(function(d) { return d.School; }));					// x.domain...
+  x.domain([0, d3.max(data, function(d) { return d.total; })])//.nice();	// y.domain...
+  z.domain(keys);
+
+  g.append("g")
+    .selectAll("g")
+    .data(d3.stack().keys(keys)(data))
+    .enter().append("g")
+      .attr("fill", function(d) { return z(d.key); })
+    .selectAll("rect")
+    .data(function(d) { return d; })
+    .enter().append("rect")
+      .attr("y", function(d) { return y(d.data.School); })	    //.attr("x", function(d) { return x(d.data.State); })
+      .attr("x", function(d) { return x(d[0]); })			    //.attr("y", function(d) { return y(d[1]); })	
+      .attr("width", function(d) { return x(d[1]) - x(d[0]); })	//.attr("height", function(d) { return y(d[0]) - y(d[1]); })
+      .attr("height", y.bandwidth())	
+      //.attr("fake", console.log(function(d){return (d[1]-d[0])}))				    //.attr("width", x.bandwidth());	
+    .on("mouseover", function() { tooltip.style("display", null); })
+    .on("mouseout", function() { tooltip.style("display", "none"); })
+    .on("mousemove", function(d) {
+      console.log(d);
+      var xPosition = d3.mouse(this)[0]+30 ;
+      var yPosition = d3.mouse(this)[1] +370;
+      tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+      tooltip.select("text").text((d[1]-d[0])+" points");
+    });
+   
+      function make_x_gridlines() {		
+    return d3.axisBottom(x)
+        .ticks(35)
+}
+      g.append("g")			
+      .attr("class", "grid")
+      //.attr("transform","translate(80,110)")
+      .style("color","lightgrey")
+     // .style("stroke-weight")
+      .call(make_x_gridlines()
+          .tickSize(190)
+          .tickFormat("")
+      )
+    g.append("line")
+        .attr("class","winLine")
+        .attr("x1",width/2)
+        .attr("x2",width/2)
+        .attr("y1",200)
+        .attr("y2", -10)
+        .style("stroke","black")
+    
+    g.append("text")
+        .attr("class","text")
+        .attr("x",width/2)
+        .attr("y",-20)
+        .text("18 points needed to win")
+        .attr("text-anchor","middle")
+    
+    s.append("rect")
+        .attr("class","board")
+        .attr("width",60)
+        .attr("height",100)
+        .attr("x",width/2+50)
+        .attr("y", -height*.13)
+        .style("stroke","black")
+        .style("fill","none")
+      s.append("text")
+        .attr("class","scoreboard")
+        .attr("width",100)
+        .attr("height",100)
+        .attr("x",width/2+50)
+        .attr("text-anchor","start")
+        .text(pc)
+
+    s.append("rect")
+        .attr("class","board")
+        .attr("width",60)
+        .attr("height",100)
+        .attr("x",width/2-50)
+        .attr("y", -height*.13)
+        .style("stroke","black")
+        .style("fill","none")
+    s.append("text")
+        .attr("class","scoreboard")
+        .attr("width",100)
+        .attr("height",100)
+        .attr("x",width/2-50)
+        .attr("text-anchor","start")
+        .text(gh)
+    
+    s.append('svg:image')
+        .attr('xlink:href', 'https://www.wcpss.net/cms/lib/NC01911451/Centricity/Domain/7382/GH.gif')  // can also add svg file here  x: width*.8,
+        
+        .attr("y", -height*.17)
+        .attr("x",width/2-275)
+       // .attr("transform","reflect")
+        .attr("width", 200)
+        .attr("height",200)
+    
+    s.append('svg:image')
+        .attr('xlink:href', 'https://s3-us-west-2.amazonaws.com/scorestream-team-profile-pictures/10425/20181010202854_161_mascot300.jpg')  // can also add svg file here  x: width*.8,
+        .attr("y", -height*.17)
+        .attr("x",width/2+150)
+       // .attr("transform","reflect")
+        .attr("width", 200)
+        .attr("height",200);
+
+    s.append("text")
+        .attr("class","team")
+        .attr("y", -height*.15)
+        .attr("x",width/2+250)
+        .text("Panther Creek")
+        .attr("text-anchor","middle")
+
+    s.append("text")
+        .attr("class","team")
+        .attr("y", -height*.15)
+        .attr("x",width/2-175)
+        .text("Green Hope")
+        .attr("text-anchor","middle")
+
+      
+
+  var legend = g.append("g")
+      .attr("font-family", "sans-serif")
+      .attr("font-size", 10)
+      .attr("text-anchor", "end")
+    .selectAll("g")
+    .data(keys.slice().reverse())
+    .enter().append("g")
+    //.attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+	 .attr("transform", function(d, i) { return "translate("+(-width*.4 + i * -60) + ",200)"; });
+
+  legend.append("rect")
+      .attr("x", width - 19)
+      .attr("width", 19)
+      .attr("height", 19)
+      .attr("fill", z);
+
+  legend.append("text")
+    .attr("class","label")
+      .attr("x", width - 24)
+      .attr("y", 9.5)
+      .attr("dy", "0.32em")
+      .text(function(d) { return d; });
+
+      // Prep the tooltip bits, initial display is hidden
+  var tooltip = svg.append("g")
+    .attr("class", "tooltip")
+    .style("display", "none");
+      
+  tooltip.append("rect")
+    .attr("width", 70)
+    .attr("height", 30)
+    .attr("fill", "white")
+    .style("opacity", 0.5);
+
+  tooltip.append("text")
+    .attr("x", 35)
+    .attr("dy", "1.2em")
+    .style("text-anchor", "middle")
+    .attr("font-size", "16px")
+    .attr("font-weight", "bold");
+
+g.append('text')
+    .attr('class', 'title')
+    .attr('y', height*-.45)
+    .attr('x', width/2)
+    .attr('text-anchor', 'middle')
+    .text('Fight for 55 Scoreboard')
+
+            
+  svg.append('text')
+    .attr('class', 'source')
+    .attr('y', height*.9)
+    .attr('x', width*.95)
+    .attr('text-anchor', 'start')
+    .text('Source: Twitter, 2019')
+
+    
+  svg.append('text')
+    .attr('class', 'byline')
+    .attr('y', height*.9)
+    .attr('x', width*.1)
+    .attr('text-anchor', 'middle')
+    .text('By: Geoffrey Dean')
+
+    var parseTime = d3.timeParse("%m/%d/%Y")
+    formatHM = d3.timeFormat("%A, %B %e, %Y")
+    d3.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vSoYwTmHYcoTS8XTNr6ABb-nSQEpw3wojU4-X-_MqryQ4Sxe4D5-IoD7bYlVSddl06-VatJGhjqvt0A/pub?gid=1443481343&single=true&output=csv", function(error, data) {
+    if (error) throw error;
+
+    data.forEach(function(d) {
+      d.date = parseTime(d.date);
+    });
+
+   
+var lastDate = d3.max(data, function(d) { return d.date; })
+var currDate = formatHM(lastDate)
+
+svg.append("text")
+    .attr("class","subtitle")
+    .attr('y', height*.15)
+    .attr('x', width/2-50)
+    .attr('text-anchor', 'start')
+    .text("Last Updated: ")
+
+svg.append("text")
+    .attr("class","subtitle")
+    .attr('y', height*.15)
+    .attr('x', width/2+50)
+    .attr('text-anchor', 'start')
+    .text(" " +currDate)
+    })
+});
+
+
+</script>

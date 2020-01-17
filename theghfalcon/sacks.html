@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<head>
+	<style>
+
+	.axis {
+	  font: 10px sans-serif;
+	}
+
+	.axis path,
+	.axis line {
+	  fill: none;
+	  stroke: #000;
+	  shape-rendering: crispEdges;
+	}
+
+    text.source {
+            font-size: 10px;
+        }
+        
+        text.byline {
+            font-size: 12px;
+            font-style: italic;
+            font-weight: bold;
+            font-family: 'Courier New', Courier, monospace;
+        }
+    text.title {
+        font-family: copperplate;
+        font-size: 25px;
+        font-style: italic;
+        font-weight: bold;
+    }
+    text.subtitle {
+        font-family: copperplate;
+        font-size: 17px;
+        font-style: italic;
+       
+    }
+
+	</style>
+</head>
+
+<body>
+	
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+
+<script>
+
+var margin = {top: 35, right: 20, bottom: 70, left: 40},
+    width = 600 - margin.left - margin.right,
+    height = 300 - margin.top - margin.bottom;
+
+// Parse the date / time
+
+
+var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
+
+var y = d3.scale.linear().range([height, 0]);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom")
+    
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .ticks(10);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", 
+          "translate(" + margin.left + "," + margin.top + ")");
+
+d3.csv("sacks.csv", function(error, data) {
+
+    data.forEach(function(d) {
+        d.winPct = +d.winPct;
+        console.log(data)
+    });
+	
+  x.domain(data.map(function(d) { return d.sacks; }));
+  y.domain([0, 100]);
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis)
+    .selectAll("text")
+      .style("text-anchor", "middle")
+      //.attr("dx", "-.8em")
+     // .attr("dy", "-.55em")
+      //.attr("transform", "rotate(-90)" );
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Win Percent (%)");
+
+  svg.selectAll("bar")
+      .data(data)
+    .enter().append("rect")
+      .style("fill", "steelblue")
+      .attr("x", function(d) { return x(d.sacks); })
+      .attr("width", x.rangeBand())
+      .attr("y", function(d) { return y(d.winPct); })
+      .attr("height", function(d) { return height - y(d.winPct); });
+
+
+svg.append("text")      // text label for chart Title
+.attr('class',"title")
+        .attr("x", width / 2 )
+        .attr("y", 0 - (margin.top/2))
+        .style("text-anchor", "middle")
+        .style("text-decoration", "underline") 
+        .text("Win Percentage Based on Number of Sacks");
+
+
+        svg.append("text")      // text label for chart Title
+.attr('class',"subtitle")
+        .attr("x", width / 2 )
+        .attr("y", 0 )//- (margin.top/2))
+        .style("text-anchor", "middle")
+        .style("text-decoration", "italic") 
+        .text("in 2019-2020 playoffs")
+        
+
+        svg.append('text')
+        .attr('class', 'source')
+        .attr('y', height*1.2)
+        .attr('x', width)
+        .attr('text-anchor', 'end')
+        .text('Source: Pro Football Reference, 2020')
+
+    
+	svg.append('text')
+		.attr('class', 'byline')
+		.attr('y', height*1.2)
+		.attr('x', width*.05)
+		.attr('text-anchor', 'middle')
+		.text('By: Geoffrey Dean')
+
+
+});
+
+</script>
+
+</body>

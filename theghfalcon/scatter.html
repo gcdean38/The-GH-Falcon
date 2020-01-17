@@ -166,7 +166,7 @@
 <script type="text/javascript">
 	var margin = {top: 30, right: 50, bottom: 60, left:40};
 	var width = 960 - margin.left - margin.right;
-	var height = 500 - margin.top - margin.bottom;
+	var height = 250 - margin.top - margin.bottom;
 
 	var svg = d3.select('body')
 		.append('svg')
@@ -175,6 +175,7 @@
 	.append('g')
 		.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
+		var formatPercent = d3.format(".0%")
 
 	// The API for scales have changed in v4. There is a separate module d3-scale which can be used instead. The main change here is instead of d3.scale.linear, we have d3.scaleLinear.
 	var xScale = d3.scaleLinear()
@@ -190,7 +191,8 @@
 
 	// the axes are much cleaner and easier now. No need to rotate and orient the axis, just call axisBottom, axisLeft etc.
 	var xAxis = d3.axisBottom()
-		.scale(xScale);
+		.scale(xScale)
+		.tickFormat(formatPercent);
 
 	var yAxis = d3.axisLeft()
 		.scale(yScale);
@@ -224,7 +226,7 @@
 
 		// adding axes is also simpler now, just translate x-axis to (0,height) and it's alread defined to be a bottom axis. 
 		svg.append('g')
-			.attr('transform', 'translate(0,' + height + ')')
+			.attr('transform', 'translate(0,125)')
 			.attr('class', 'x axis')
 			.call(xAxis);
 
@@ -270,10 +272,10 @@
 		svg.append('text')
 			.attr("class","label")
 			.attr('x', width/2)
-			.attr('y', height +40)
+			.attr('y', height*1.1)
 			.attr('text-anchor', 'middle')
 			.attr('class', 'label')
-			.text('Percent ');
+			.text('Percent');
 
 
 		// I feel I understand legends much better now.
@@ -359,7 +361,7 @@ d3.select(".chart")
 
 	svg.append('text')
 		.attr('class', 'source')
-		.attr('y', 450)
+		.attr('y', height)
 		.attr('x', 775)
 		.attr('text-anchor', 'start')
 		.text('Source: FiveThirtyEight, 2019')
@@ -367,7 +369,7 @@ d3.select(".chart")
     
 	svg.append('text')
 		.attr('class', 'byline')
-		.attr('y', 450)
+		.attr('y', height)
 		.attr('x', 40)
 		.attr('text-anchor', 'middle')
 		.text('By: Geoffrey Dean')

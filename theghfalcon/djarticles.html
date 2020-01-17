@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<div id="legend1"></div>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<head>
+    <title>djarticles</title>
+</head>
+<div class="heatmap"></div>
+<style>
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+        }
+        
+        div#layout {
+            text-align: center;
+        }
+        
+        div#container {
+            width: 1000px;
+            height: 600px;
+            margin: auto;
+            background-color: navy;
+        }
+        
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .rect {
+            fill: rgba(255, 0, 0, 0.877);
+        }
+        
+        text {
+            font-size: 12px;
+            fill:black;
+        }
+        
+        path {
+            stroke: gray;
+        }
+        
+        line {
+            stroke: gray;
+        }
+        
+        line#limit {
+            stroke: #FED966;
+            stroke-width: 3;
+            stroke-dasharray: 3 6;
+        }
+        
+        .grid path {
+            stroke-width: 0;
+        }
+        
+        .grid .tick line {
+            stroke: #9FAAAE;
+            stroke-opacity: 0.3;
+        }
+        
+        text.divergence {
+            font-size: 14px;
+            fill:black;
+        }
+        
+        text.value {
+            font-size: 14px;
+        }
+        
+        text.title {
+            font-size: 30px;
+            font-weight: bold;
+            font-family: "arial black";
+        }
+        
+        text.label {
+            font-size: 20px;
+            font-weight: bold;
+            font-family: Arial, Helvetica, sans-serif;
+            /*font-weight: "bold";*/
+        }
+        
+        text.source {
+            font-size: 10px;
+        }
+        
+        text.byline {
+            font-size: 12px;
+            font-style: italic;
+            font-weight: bold;
+            font-family: 'Courier New', Courier, monospace;
+        }
+    </style>
+<script>
+
+
+
+    var sample = [
+                    {
+                    xCat: 1,
+                    yCat: 3,
+                    attempts: 6,
+                    comp: 100
+                    },
+                    {
+                    xCat: 2,
+                    yCat: 3,
+                    attempts: 16,
+                    comp: 100
+                    },
+                    {
+                    xCat: 3,
+                    yCat: 3,
+                    attempts: 22,
+                    comp: 86
+                    },
+                    {
+                    xCat: 1,
+                    yCat: 2,
+                    attempts: 16,
+                    comp: 40
+                    },
+                    {
+                    xCat: 2,
+                    yCat: 2,
+                    attempts: 6,
+                    comp: 100
+                    },
+                    {
+                    xCat: 3,
+                    yCat: 2,
+                    attempts: 13,
+                    comp: 100
+                    },
+                    {
+                    xCat: 1,
+                    yCat: 1,
+                    attempts: 16,
+                    comp: 100
+                    },
+                    {
+                    xCat: 2,
+                    yCat: 1,
+                    attempts: 6,
+                    comp: 50
+                    },
+                    {
+                    xCat: 3,
+                    yCat: 1,
+                    attempts: 6,
+                    comp: 50
+                    }
+                ];
+
+
+                var colorDomain = d3.extent(sample, function(d){
+                    return d.attempts;
+                });
+                
+            
+                var height = 200
+                var width = 200
+                var margin = 10
+                var colorScale = d3.scaleLinear()
+                    .domain(colorDomain)
+                    .range(["LightBlue","DarkBlue"]);
+            
+                var svg = d3.select(".heatmap")
+                    .append("svg")
+                    .attr("x", 0)
+                    .attr("y", 0)
+                    .attr("width", width)
+                    .attr("height", height)
+                    .attr("transform", "translate(0,-400)");
+                
+                const yScale = d3.scaleBand()
+                    .range([height, 0])
+                    .domain(sample.map((d) => d.yCat))
+                    .padding(0.2)
+                
+                const xScale = d3.scaleBand()
+                    .domain(sample.map(d => d.xCat))
+                    .range([0, width])
+                    .padding(0.2)
+
+                var rectangles = svg.selectAll("rect")
+                    .data(sample)
+                    .attr("class", "rect")
+                    .enter()
+                    .append("rect"); 
+            
+                rectangles
+                    .attr("x", function(d){
+                    return d.xCat * 50; 
+                })
+                    .attr("y", function(d){
+                    return d.yCat * 50; 
+                })
+                    .attr("width", 50)
+                    .attr("height", 50)
+                    .style("stroke",'white') 
+                    .style("fill", function(d){
+                    return colorScale(d.attempts); 
+                })
+                .attr("transform", "translate(0,0)")
+
+                var key = d3.select("#legend1")
+                    .append("svg")
+                    .attr("width", 100)
+                    .attr("height", 50)
+                    .attr("transform", "translate(0,375)")
+                var legend = key.append("defs")
+                    .append("svg:linearGradient")
+                    .attr("id", "gradient")
+                    .attr("x1", "0%")
+                    .attr("y1", "100%")
+                    .attr("x2", "100%")
+                    .attr("y2", "100%")
+                    .attr("spreadMethod", "pad");
+
+                legend.append("stop")
+                    .attr("offset", "0%")
+                    .attr("stop-color", "LightBlue")
+                    .attr("stop-opacity", 1);
+
+                legend.append("stop")
+                    .attr("offset", "33%")
+                    .attr("stop-color", "#1F45FC")
+                    .attr("stop-opacity", 1);
+
+                legend.append("stop")
+                    .attr("offset", "66%")
+                    .attr("stop-color", "#0020C2")
+                    .attr("stop-opacity", 1);
+
+                legend.append("stop")
+                    .attr("offset", "100%")
+                    .attr("stop-color", "DarkBlue")
+                    .attr("stop-opacity", 1);
+
+                key.append("rect")
+                    .attr("width", 100)
+                    .attr("height", 20)
+                    .style("fill", "url(#gradient)")
+                    .attr("transform", "translate(0,100)");
+
+                //var maxAtt = d3.max(sample, function(d) { return d.attempts; });
+                //console.log(maxAtt)
+                var y = d3.scaleLinear()
+                    .range([0,100])
+                    .domain([0, 25]);
+                
+
+                var yAxis = d3.axisBottom()
+                    .scale(y)
+                    .ticks(5);
+            
+                key.append("g")
+                    .attr("class", "y axis")
+                    .attr("transform", "translate(0,120)")
+                    .call(yAxis)
+                    .append("text")
+                    .attr("y", 0)
+                    .attr("x", 0)
+                    .attr("dy", ".71em")
+                    .style("text-anchor", "end")
+                    .text("Pass Attempts");
+
+                svg
+                    .append('text')
+                    .attr('class', 'label')
+                    .attr('y', height -50 )
+                    .attr('x', width / 2.8 )
+                    //.attr('transform', 'rotate(-90)')
+                    .attr('text-anchor', 'left')
+                    .text('Left')
+                svg
+                    .append('text')
+                    .attr('class', 'label')
+                    .attr('y', height -50 )
+                    .attr('x', width / 1.65 )
+                    //.attr('transform', 'rotate(-90)')
+                    .attr('text-anchor', 'middle')
+                    .text('Middle')
+                svg
+                    .append('text')
+                    .attr('class', 'label')
+                    .attr('y', height -50 )
+                    .attr('x', width / 1.33 )
+                    //.attr('transform', 'rotate(-90)')
+                    .attr('text-anchor', 'right')
+                    .text('Right')
+                
+                svg.append('text')
+                    .attr('class', 'label')
+                    .attr('x', -10+2*margin)
+                    .attr('y', width/2+margin/2)
+                    .attr('text-anchor', 'middle')
+                //.text('Medium')
+                    .text('5-15 yards')
+                
+                svg.append('text')
+                    .attr('class', 'label')
+                    .attr('x', -10+2*margin)
+                    .attr('y', width/3.2+margin/2)
+                    .attr('text-anchor', 'middle')
+                    .text('15+ yards')
+                    
+                svg.append('text')
+                    .attr('class', 'label')
+                    .attr('x', -10+2*margin)
+                    .attr('y', width/1.4+margin/2)
+                    .attr('text-anchor', 'middle')
+                    .text('<5 yards')
+                
+                svg.append('text')
+                    .attr('class', 'title')
+                    .attr('y', 75)
+                    .attr('x', width/1.66)
+                    .attr('text-anchor', 'middle')
+                    .text('Daniel Jones')
+
+                svg.append('text')
+                    .attr('class', 'title')
+                    .attr('y', 110)
+                    .attr('x', width/1.67)
+                    .attr('text-anchor', 'middle')
+                    .text('Throw Locations')
+                
+                svg.append('text')
+                    .attr('class', 'byline')
+                    .attr('y', height )
+                    .attr('x', width / 8 )
+                    .attr('text-anchor', 'middle')
+                    .attr('transform','translate(145,0)')
+                    .text('By: Geoffrey Dean')
+    //second heat map            
+    // Labels of row and columns
+    var sample2 = [
+                    {
+                    xCat: 1,
+                    yCat: 3,
+                    attempts: 13,
+                    comp: 67
+                    },
+                    {
+                    xCat: 2,
+                    yCat: 3,
+                    attempts: 7,
+                    comp: 100
+                    },
+                    {
+                    xCat: 3,
+                    yCat: 3,
+                    attempts: 24,
+                    comp: 36
+                    },
+                    {
+                    xCat: 1,
+                    yCat: 2,
+                    attempts: 24,
+                    comp: 73
+                    },
+                    {
+                    xCat: 2,
+                    yCat: 2,
+                    attempts: 4,
+                    comp: 50
+                    },
+                    {
+                    xCat: 3,
+                    yCat: 2,
+                    attempts: 13,
+                    comp: 100
+                    },
+                    {
+                    xCat: 1,
+                    yCat: 1,
+                    attempts: 4,
+                    comp: 0
+                    },
+                    {
+                    xCat: 2,
+                    yCat: 1,
+                    attempts: 2,
+                    comp: 0
+                    },
+                    {
+                    xCat: 3,
+                    yCat: 1,
+                    attempts: 7,
+                    comp: 33
+                    }
+                ];
+
+                var colorDomain2 = d3.extent(sample2, function(d){
+                    return d.attempts;
+                });
+                
+            
+                var height2 = 500
+                var width2 = 500
+                var margin2 = 50
+                var colorScale2 = d3.scaleLinear()
+                    .domain(colorDomain2)
+                    .range(["LightBlue","DarkBlue"]);
+            
+                var svg2 = d3.select(".heatmap")
+                    .append("svg")
+                    .attr("width", width2)
+                    .attr("height", height2)
+                    .attr("transform", "translate(350,0)");
+                
+                const yScale2 = d3.scaleBand()
+                    .range([height2, 0])
+                    .domain(sample2.map((d) => d.yCat))
+                    .padding(0.2)
+                
+                const xScale2 = d3.scaleBand()
+                    .domain(sample2.map(d => d.xCat))
+                    .range([0, width2])
+                    .padding(0.2)
+
+                var rectangles2 = svg2.selectAll("rect")
+                    .data(sample2)
+                    .attr("class", "rect")
+                    .enter()
+                    .append("rect"); 
+            
+                rectangles2
+                    .attr("x", function(d){
+                    return d.xCat * 100; 
+                })
+                    .attr("y", function(d){
+                    return d.yCat * 100; 
+                })
+                    .attr("width", 100)
+                    .attr("height", 100)
+                    .style("stroke",'white')  
+                    .style("fill", function(d){
+                    return colorScale(d.attempts); 
+                })
+                .attr("transform", "translate(50,20)")
+                var y2 = d3.scaleLinear()
+                    .range([0,200])
+                    .domain([0, 25]);
+                
+
+                var yAxis2 = d3.axisBottom()
+                    .scale(y)
+                    .ticks(5);
+
+                svg2
+                    .append('text')
+                    .attr('class', 'label')
+                    .attr('y', height2 -50 )
+                    .attr('x', width2 / 2.8 )
+                    //.attr('transform', 'rotate(-90)')
+                    .attr('text-anchor', 'left')
+                    .text('Left')
+                svg2
+                    .append('text')
+                    .attr('class', 'label')
+                    .attr('y', height2 -50 )
+                    .attr('x', width2 / 1.65 )
+                    //.attr('transform', 'rotate(-90)')
+                    .attr('text-anchor', 'middle')
+                    .text('Middle')
+                svg2
+                    .append('text')
+                    .attr('class', 'label')
+                    .attr('y', height2 -50 )
+                    .attr('x', width2 / 1.33 )
+                    //.attr('transform', 'rotate(-90)')
+                    .attr('text-anchor', 'right')
+                    .text('Right')
+                
+                /*svg2.append('text')
+                    .attr('class', 'label')
+                    .attr('x', -10+2*margin2)
+                    .attr('y', width2/2+margin2/2)
+                    .attr('text-anchor', 'middle')
+                //.text('Medium')
+                    .text('5-15 yards')
+                
+                svg2.append('text')
+                    .attr('class', 'label')
+                    .attr('x', -10+2*margin2)
+                    .attr('y', width2/3.2+margin2/2)
+                    .attr('text-anchor', 'middle')
+                    .text('15+ yards')
+                    
+                svg2.append('text')
+                    .attr('class', 'label')
+                    .attr('x', -10+2*margin2)
+                    .attr('y', width2/1.4+margin2/2)
+                    .attr('text-anchor', 'middle')
+                    .text('<5 yards')*/
+                
+                svg2.append('text')
+                    .attr('class', 'title')
+                    .attr('y', 75)
+                    .attr('x', width2/1.66)
+                    .attr('text-anchor', 'middle')
+                    .text('Eli Manning')
+
+                svg2.append('text')
+                    .attr('class', 'title')
+                    .attr('y', 110)
+                    .attr('x', width2/1.67)
+                    .attr('text-anchor', 'middle')
+                    .text('Throw Locations')
+                
+                svg2.append('text')
+                    .attr('class', 'source')
+                    .attr('y', height2)
+                    .attr('x', width2 - margin2 / 2)
+                    .attr('text-anchor', 'start')
+                    .attr("transform","translate(-110,0)")
+                    .text('Source: NFL, 2019')
+    </script>

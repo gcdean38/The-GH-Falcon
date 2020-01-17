@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font: 14px sans-serif;
+}
+text.source {
+            font-size: 10px;
+        }
+        
+        text.byline {
+            font-size: 12px;
+            font-style: italic;
+            font-weight: bold;
+            font-family: 'Courier New', Courier, monospace;
+        }
+    text.title {
+        font-family: copperplate;
+        
+        font-style: italic;
+        font-weight: bold;
+    }
+text {
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+text.label {
+    font-size: 9px;
+    font-style: italic;
+}
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1.5px;
+  shape-rendering: crispEdges;
+}
+.tie-line {
+    stroke: black;
+    stroke-width: 1px;
+    stroke-dasharray: 3,3;
+}
+.line {
+  fill: none;
+  stroke: black;
+  stroke-width: 2.5px;
+}
+
+.dot {
+  stroke: #000;
+}
+
+div.tooltip {   
+  position: absolute;           
+  text-align: center;           
+  max-width: 150px;
+  height: auto;                
+  padding: 4px;             
+  font: 10px sans-serif;  
+  color: black;   
+  font-weight: 500;   
+  background: none repeat scroll 0 0 #ffffff;
+  border: 1px solid black;   
+  stroke: black;   
+  border-radius: 4px;           
+  pointer-events: none;         
+}
+
+/* http://www.d3noob.org/2013/01/adding-grid-lines-to-d3js-graph.html */
+.grid .tick {
+    stroke: lightgrey;
+    opacity: 0.7;
+}
+
+</style>
+<body>
+<script src="https://d3js.org/d3.v3.js"></script>
+<script>
+
+//I increased the bottom margin a little bit because the x label is tied to it; so I could lower the x label a little bit
+var margin = {top: 50, right: 100, bottom: 60, left: 90},
+    width = 750 - margin.left - margin.right,
+    height = 520 - margin.top - margin.bottom;
+
+var x = d3.scale.linear()
+    .range([0, width]);
+
+var y = d3.scale.linear()
+    .range([height, 0]);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+	.ticks(5)
+	//makes the xAxis ticks a little longer than the xMinorAxis ticks
+    .tickSize(10)
+    .orient("bottom");
+
+var xMinorAxis = d3.svg.axis()
+    .scale(x)
+	.ticks(0)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left");
+
+var line = d3.svg.line()
+    .x(function(d) { return x(d.time); })
+    .y(function(d) { return y(d.deficit); });
+
+var div = d3.select("body").append("div")   
+    .attr("class", "tooltip")               
+    .style("opacity", 0);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+//var parseTime = d3.time.format("%B %d, %Y");
+//var formatTime = d3.time.format("%m/%d/%y");
+//var formatCount = d3.format(",");
+
+// function for the y grid lines
+function make_y_axis() {
+  return d3.svg.axis()
+      .scale(y)
+      .orient("left")
+}
+
+//reading in CSV which contains data
+d3.csv("texanschiefs.csv", function(error, data) {
+//    d3.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vSOQq9WtKoXwYUZj31n_2Y5sEdLBH4I3_kRmH-LjXl2DOWrMYIcXXcoA3EmG-GZVr39OPxLtZYnsJCE/pub?gid=0&single=true&output=csv", function(error, data) {
+  data.forEach(function(d) {
+    //d.date = parseTime.parse(d.date);
+	//console.log(d.date);
+    d.deficit = +d.deficit;
+    d.time = +d.time;
+    d.houston = d.houston;
+    d.kansascity = d.kansascity;
+    console.log(data)
+  });
+
+  //using imported data to define extent of x and y domains
+  x.domain([0,60]);
+  y.domain(d3.extent(data, function(d) { return d.deficit; }));
+
+  svg.append("path")
+      .datum(data)
+      .attr("class", "line")
+      .attr("d", line)
+      //.attr("transform","translate(-0,-10)");;
+
+
+//creating a group(g) and will append a circle and 2 lines inside each group
+var g = svg.selectAll()
+        .data(data).enter().append("g")
+        .attr("transform","translate(-10,-20)");
+
+g.append("line")
+  .attr("class","tie-line")
+  .attr("y1",y(0))
+  .attr("y2",y(0))
+  .attr("x1",0)
+  .attr("x2",width)
+  .attr("transform","translate(0,30)");
+   //The markers on the line. Labels for events
+	 var rect = g.append("rect")
+        .attr("class",'smallBox')
+        .attr("x", function(d) { return x(d.time)-2; })
+        .attr("y", function(d) { return y(d.deficit)+5; })//function(d) { return y(d.value); })
+        .attr("height",20)
+        .attr('width',50)
+        .style("stroke","white")
+        
+        g.append("text")
+        .attr("class","label")
+        .attr("dx", function(d){return x(d.time)+3;})
+        .text(function(d) {return d.inGame})
+        .attr("y", function(d) { return y(d.deficit)+18; })
+        .attr("font-size","10px")
+        .attr("dy",".01em")
+        .attr("text-anchor","start")
+        .style("fill","white")
+        .call(wrap, 130)
+       // var place = d3.call(x)
+        //console.log(place)
+  //The vertical dashed line that appears when a circle marker is moused over
+	/*g.append("line")
+        .attr("class", "y")
+        .attr("id", "dashedLine")
+        .style("stroke", "black")
+        .style("stroke-dasharray", "3,3")
+        .style("opacity", 1)
+        .attr("x1", function(d) { return x(d.date); })
+        .attr("y1", function(d) { return y(d.value); })
+		    .attr("x2", function(d) { return x(d.date); })
+        .attr("y2", height);*/
+    
+   //circles are selected again to add the mouseover functions. could be events or more description
+ 	 g.selectAll("rect")
+			.on("mouseover", function(d) {		
+            div.transition()		
+               .duration(200)		
+               .style("opacity", 1)
+               .style("border-color","black")
+            div.html( "<b>"+(d.inGame)+"</b> "+ "<br/>"+ "<i>"+"Houston: " +(d.houston) + "</i>"+ "<br/>"+ "<i>"+"Kansas City: " +(d.kansascity)+ "</i>"+ "<br/>" +(d.score) )	
+               .style("left", (x(d.time)+10) + "px")
+      		   .style("top", (y(d.deficit)+10) + "px");
+                 
+
+	          //selects the horizontal dashed line in the group
+			    d3.select(this.nextElementSibling).transition()		
+                .duration(200)		
+                .style("opacity", 1);	
+                
+
+            })	
+            
+				
+      .on("mouseout", function(d) {		
+            div.transition()		
+               .duration(500)		
+               .style("opacity", 0);
+
+			      d3.select(this.nextElementSibling).transition()		
+                .duration(500)		
+                .style("opacity", 1);
+        });
+        
+g.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0,440)")
+      .call(xAxis)
+	    .selectAll(".tick text")
+        .append("text")
+        .attr("y",100)
+        .text("Time into game")
+
+        g.append("g")
+      .attr("class", "y axis")
+      .attr("transform", "translate(0,30)")
+      .call(yAxis)
+	    .selectAll(".tick text");
+    
+    g.append("text")
+      .text("Deficit")
+      .attr("x",-70)
+      .attr('y',20)
+      .attr("transform","rotate(270)")
+
+      g.append("text")
+      .text("Minutes into game")
+      .attr("x",425)
+      .attr('y',430)
+      //.attr("transform","rotate(270)")
+
+/*svg.append("g")
+    .attr("class","xMinorAxis")
+    .attr("transform", "translate(0," + height + ")")
+    .style({ 'stroke': 'Black', 'fill': 'none', 'stroke-width': '1px'})
+    .call(xMinorAxis)
+    .selectAll("text").remove();*/
+
+//http://www.d3noob.org/2013/01/adding-title-to-your-d3js-graph.html
+svg.append("text")      // text label for chart Title
+.attr('class',"title")
+        .attr("x", width / 2 )
+        .attr("y", 0 - (margin.top/2))
+        .style("text-anchor", "middle")
+		.style("font-size", "20px") 
+        .style("text-decoration", "underline") 
+        
+        .text("Chiefs Deficit Over the Course of Divisional Game");
+
+        svg.append('text')
+        .attr('class', 'source')
+        .attr('y', height*1.13)
+        .attr('x', width)
+        .attr('text-anchor', 'end')
+        .text('Source: ESPN, 2020')
+
+    
+	svg.append('text')
+		.attr('class', 'byline')
+		.attr('y', height*1.13)
+		.attr('x', width*.05)
+		.attr('text-anchor', 'middle')
+		.text('By: Geoffrey Dean')
+
+
+//This code wraps label text if it has too much text
+function wrap(text, width) {
+  text.each(function() {
+    var text = d3.select(this),
+        words = text.text().split(/\s+/).reverse(),
+        word,
+        line = [],
+        lineNumber = 0,
+        lineHeight = 1.1, // ems
+        y = text.attr("y"),
+        dy = parseFloat(text.attr("dy")),
+        tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+    while (word = words.pop()) {
+      line.push(word);
+      tspan.text(line.join(" "));
+      if (tspan.node().getComputedTextLength() > width) {
+        line.pop();
+        tspan.text(line.join(" "));
+        line = [word];
+        tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+      }
+    }
+  });
+}
+
+});
+
+</script>

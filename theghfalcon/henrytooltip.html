@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+text.source {
+            font-size: 10px;
+        }
+        
+        text.byline {
+            font-size: 12px;
+            font-style: italic;
+            font-weight: bold;
+            font-family: 'Courier New', Courier, monospace;
+        }
+.bar {
+  fill: #4b92db
+;
+}
+
+.bar:hover {
+  fill: #002244
+ ;
+}
+.title { stroke: black;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-size: 30px;
+    font-weight: bold;
+}
+.x.axis path {
+  display: none;
+}
+
+.d3-tip {
+  line-height: 1;
+  font-weight: bold;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+}
+
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+<script>
+
+var margin = {top: 80, right: 20, bottom: 50, left: 40},
+    width = 800 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom;
+
+var formatPercent = d3.format(".0%");
+
+var x = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .1);
+
+var y = d3.scale.linear()
+    .range([height, 0]);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .tickFormat(formatPercent);
+
+
+
+var tip = d3.tip()
+  .attr('class', 'd3-tip')
+  .offset([-10, 0])
+  .html(function(d) {
+    return "<strong>Rush Yards:</strong> <span '>" + d.rushYds + "<hr/>"+ "<strong>Receiving Yards:</strong> <span >"+d.recYds+"</span>";
+  })
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    svg.append("line")
+        .attr("class","guideLine")
+        .attr("x1", 0)
+        .attr("x2", width-12)
+        .attr("y1",y(2/3))
+        .attr("y2",y(2/3))
+        .attr("stroke","black")
+        .attr("stroke-width","1px")
+        svg.append("line")
+        .attr("class","guideLine")
+        .attr("x1", 0)
+        .attr("x2", width-12)
+        .attr("y1",y(1))
+        .attr("y2",y(1))
+        .attr("stroke","black")
+        .attr("stroke-width","1px")
+
+        svg.append("line")
+        .attr("class","guideLine")
+        .attr("x1", 0)
+        .attr("x2", width-12)
+        .attr("y1",y(1/3))
+        .attr("y2",y(1/3))
+        .attr("stroke","black")
+        .attr("stroke-width","1px")
+svg.call(tip);
+
+d3.csv("henry.csv", type, function(error, data) {
+  x.domain(data.map(function(d) { return d.week; }));
+  y.domain([0, d3.max(data, function(d) { return d.percent; })]);
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 8)
+      .attr("x", -5)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Percent");
+
+  svg.selectAll(".bar")
+      .data(data)
+    .enter().append("rect")
+      .attr("class", "bar")
+      .attr("x", function(d) { return x(d.week); })
+      .attr("width", x.rangeBand())
+      .attr("y", function(d) { return y(d.percent); })
+      .attr("height", function(d) { return height - y(d.percent); })
+      .on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+
+      svg.append('text')
+        .attr("class","title")
+        .attr('x', width/2)//+210)
+        .attr('y', height*-.15) //height +40)
+        .attr('text-anchor', 'middle')
+        //.attr('class', '')
+        .text("Percentage of Titan's Yards Coming from Derrick Henry");
+
+
+
+    svg.append('text')
+        .attr('class', 'source')
+        .attr('y', height*1.15)
+        .attr('x', width)
+        .attr('text-anchor', 'end')
+        .text('Source: Pro Football Reference, 2020')
+
+    
+	svg.append('text')
+		.attr('class', 'byline')
+		.attr('y', height*1.15)
+		.attr('x', width*.05)
+		.attr('text-anchor', 'middle')
+		.text('By: Geoffrey Dean')
+
+});
+
+function type(d) {
+  d.percent = +d.percent/100;
+  d.rushYds = +d.rushYds;
+    d.recYds = +d.recYds;
+  return d;
+}
+
+</script>

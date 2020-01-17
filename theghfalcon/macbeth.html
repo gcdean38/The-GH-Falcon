@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style> /* set the CSS */
+
+.bar { fill: darkred; }
+.title { stroke: black;
+    font-family:'Monotype Corsiva','Apple Chancery','ITC Zapf Chancery','URW Chancery L',cursive;
+    font-size: 30px;
+    font-weight: bold;
+}
+text.source {
+            font-size: 10px;
+        }
+        
+        text.byline {
+            font-size: 12px;
+            font-style: italic;
+            font-weight: bold;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .y_axis {
+            font-size: 20px;
+            /*font-weight: bold;*/
+            font-family: Arial, Helvetica, sans-serif;
+            /*font-weight: "bold";*/
+        }
+        
+</style>
+<body>
+	
+<!-- load the d3.js library -->    	
+<script src="//d3js.org/d3.v4.min.js"></script>
+<script>
+
+// set the dimensions and margins of the graph
+var margin = {top: 50, right: 20, bottom: 50, left: 60},
+    width = 1500 - margin.left - margin.right,
+    height = 750 - margin.top - margin.bottom;
+
+// set the ranges
+var x = d3.scaleBand()
+          .range([0, width])
+          .padding(0.1);
+var y = d3.scaleLinear()
+          .range([height, 0]);
+          
+// append the svg object to the body of the page
+// append a 'group' element to 'svg'
+// moves the 'group' element to the top left margin
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", 
+          "translate(" + margin.left + "," + margin.top + ")");
+
+// get the data
+d3.csv("macbeth.csv", function(error, data) {
+  if (error) throw error;
+
+  // format the data
+  data.forEach(function(d) {
+    d.References = +d.References;
+  });
+
+  // Scale the range of the data in the domains
+  x.domain(data.map(function(d) { return d.Place; }));
+  y.domain([0, d3.max(data, function(d) { return d.References; })]);
+
+  // append the rectangles for the bar chart
+  svg.selectAll(".bar")
+      .data(data)
+    .enter().append("rect")
+      .attr("class", "bar")
+      .attr("x", function(d) { return x(d.Place); })
+      .attr("width", x.bandwidth())
+      .attr("y", function(d) { return y(d.References); })
+      .attr("height", function(d) { return height - y(d.References); });
+
+  // add the x Axis
+  svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+
+  // add the y Axis
+  svg.append("g")
+      .call(d3.axisLeft(y))
+      .attr("class","y_axis")
+      .append("text")
+        //.attr("transform", "rotate(-90)")
+        .attr("y", 30)
+        .attr("x",100)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
+        .text("References");
+
+});
+
+svg.append('text')
+        .attr("class","title")
+        .attr('x', width/2)//+210)
+        .attr('y', -20) //height +40)
+        .attr('text-anchor', 'middle')
+        //.attr('class', '')
+        .text('References to "Blood" Throughout Macbeth');
+
+    svg.append('text')
+        .attr('class', 'source')
+        .attr('y', 685)
+        .attr('x', 1300)
+        .attr('text-anchor', 'start')
+        .text('Source: Folger Digital Texts, 2019')
+
+    
+	svg.append('text')
+		.attr('class', 'byline')
+		.attr('y', 685)
+		.attr('x', 40)
+		.attr('text-anchor', 'middle')
+		.text('By: Geoffrey Dean')
+
+
+</script>
+</body>
