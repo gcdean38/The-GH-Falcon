@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Bracket</title>
+	<body>
+	</body>
+	
+    <style type="text/css">
+    
+</style>
+	<script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
+</head>
+<body>
+	
+<script type="text/javascript">
+	var margin = {top: 30, right: 50, bottom: 60, left:40};
+	var width = 1500 - margin.left - margin.right;
+	var height = 2000 - margin.top - margin.bottom;
+
+	var svg = d3.select('body')
+		.append('svg')
+		.attr('width', width + margin.left + margin.right)
+		.attr('height', height + margin.top + margin.bottom)
+        g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        
+
+        d3.csv("bracketDataActual.csv", function(error, data) {
+            data.forEach(function(d) {
+                d.seed = +d.seed;
+            d.position = +d.newPos*30;
+            d.round = +d.round*150
+            d.favorite = +d.favorite;
+           
+
+            
+           
+        })
+  //var keys = data.columns.slice(0,3);
+console.log(data)
+  //data.sort(function(a, b) { return b.total - a.total; });
+  
+  //z.domain(keys);
+const bracket = g.append("g")
+    .selectAll("g")
+    .data(data)
+    .enter().append("g")
+  bracket
+    .append("rect")
+      .attr("x", function(d){return (d.round-150)*1.5})
+      .attr("y", function(d) {return d.position-15})
+      .attr("height", 30)
+      .attr("width", 200)
+      .style("fill","white")
+      .style("stroke","black")
+
+      bracket.append("text")
+      .attr("x", function(d){return (d.round-145)*1.5})
+      .attr("y", function(d){return d.position+5})
+      .attr("text-anchor","start")
+      .style("font-weight",function(d){
+          if(d.winner=="win"){return "bold"}
+          else{return ""}
+      })
+    
+      .text((d)=>`${d.seed}) ${d.team}`)
+      
+
+      bracket.append("line")
+      .attr("x1",function(d){return d.round+(d.round/5  )})
+      .attr("x2",function(d){return (1.5*(d.round)+80)})
+      .attr("y1",function(d){return d.position-15})
+      .attr("y2",function(d){return d.position-15})
+      .style("stroke", function(d){
+          if(d.favorite < 1){return "black"}
+          else{return "none"}})
+          bracket.append("line")
+      .attr("x1",function(d){return 1.5*(d.round)+80})
+      .attr("x2",function(d){return 1.5*(d.round)+80})
+      .attr("y1",function(d){return d.position-15})
+      .attr("y2",function(d){
+          if(d.direction == "up"){return (d.position)-30-((d.round^2)+(2^(3*d.round-150)))/10}
+          if(d.direction == "down"){return (d.position)+((d.round^2)+(2^(3*d.round-150)))/10}
+          else{{return d.position-15}}})
+      .style("stroke","black" )
+
+          
+
+
+})
+
+</script>
+	
+</body>
+</html>

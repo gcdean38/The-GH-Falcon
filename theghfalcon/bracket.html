@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Bracket</title>
+	<body>
+	</body>
+	
+    <style type="text/css">
+    
+</style>
+	<script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
+</head>
+<body>
+	
+<script type="text/javascript">
+	var margin = {top: 30, right: 50, bottom: 60, left:40};
+	var width = 1500 - margin.left - margin.right;
+	var height = 3300 - margin.top - margin.bottom;
+
+	var svg = d3.select('body')
+		.append('svg')
+		.attr('width', width + margin.left + margin.right)
+		.attr('height', height + margin.top + margin.bottom)
+        g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        var color = d3.scaleLinear()
+            .domain([0,100])
+            .range(["#b3b5ff","#0008ff"])
+        var formatDecimal = d3.format(".1f")
+        d3.csv("bracketDataPredictive.csv", function(error, data) {
+            data.forEach(function(d) {
+                d.seed = +d.seed;
+            d.position = +d.newPos*30;
+            d.round = +d.round*150
+            d.favorite = +d.favorite;
+            d.winPct = +d.winPct*100;
+
+            
+           
+        })
+  //var keys = data.columns.slice(0,3);
+console.log(data)
+  //data.sort(function(a, b) { return b.total - a.total; });
+  
+  //z.domain(keys);
+const bracket = g.append("g")
+    .selectAll("g")
+    .data(data)
+    .enter().append("g")
+    //team name boxes
+  bracket
+    .append("rect")
+      .attr("x", function(d){return (d.round-150)*2})
+      .attr("y", function(d) {return d.position-15})
+      .attr("height", 30)
+      .attr("width", 250)
+      .style("fill", (d)=>color(d.winPct))
+      .style("stroke","black")
+
+      //team name text
+      bracket.append("text")
+      .attr("x", function(d){return (d.round-145)*2})
+      .attr("y", function(d){return d.position+5})
+      .attr("text-anchor","start")
+      .style('fill',"white")
+      .text((d)=>`${d.seed}) ${d.team}`)
+      
+//win prob box
+      bracket
+    .append("rect")
+      .attr("x", function(d){return (d.round-50)*2})
+      .attr("y", function(d) {return d.position-15})
+      .attr("height", 30)
+      .attr("width", 50)
+      .style("fill", (d)=>color(d.winPct))
+      .style("stroke","black")
+//win prob %
+      bracket.append("text")
+      .attr("x", function(d){return (d.round-47.5)*2})
+      .attr("y", function(d){return d.position+5})
+      .attr("text-anchor","start")
+      /*.style("font-weight",function(d){
+          if(d.round/150 <= d.winner){return "bold"}
+          else{return ""}
+      })*/
+      .style('fill',"white")
+      .text((d)=>`${formatDecimal(d.winPct)}%`)
+
+//horizontal bracket lines
+      bracket.append("line")
+      .attr("x1",function(d){return d.round+(d.round/2  )})
+      .attr("x2",function(d){return (2*(d.round)+80)})
+      .attr("y1",function(d){return d.position-15})
+      .attr("y2",function(d){return d.position-15})
+      .style("stroke", function(d){
+          if(d.favorite < 1){return "black"}
+          else{return "none"}})
+
+          //vertical bracket lines
+          bracket.append("line")
+      .attr("x1",function(d){return 2*(d.round)+80})
+      .attr("x2",function(d){return 2*(d.round)+80})
+      .attr("y1",function(d){return d.position-15})
+      .attr("y2",function(d){
+          if(d.direction == "up"){return (d.position)-30-((d.round^2)+(2^(3*d.round-150)))/10}
+          if(d.direction == "down"){return (d.position)+((d.round^2)+(2^(3*d.round-150)))/10}
+          else{{return d.position-15}}})
+      .style("stroke","black" )
+
+      //regions
+
+      regions = [
+  {region: "EAST",x: 720,   position: 12.5*30+10},
+  {region: "WEST",x: 720,  position: 37.5*30+10},
+  {region: "SOUTH",x: 720, position: 62.5*30+10},
+  {region: "MIDWEST",x: 700, position:87.5*30+10},
+  {region: "FINAL FOUR",x: 850, position: 103.5*30+12}
+]
+      console.log(regions)
+     const region = g.append("g")
+    .selectAll("g")
+    .data(regions)
+    .enter().append("g")
+    region.append("text")
+    .attr("x",function(d){return d.x})
+    .attr("y",function(d){return d.position})
+    .text(function(d){return d.region})
+    .attr("text-anchor","middle")
+    .style("font-size","80px")
+    .style("font-weight",'BOLD')
+    .style("font-style","italic")
+
+          
+
+
+})
+
+</script>
+	
+</body>
+</html>
