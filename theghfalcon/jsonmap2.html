@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
+
+<!-- Create an element where the map will take place -->
+<svg id="my_dataviz" width="1500" height="1000"></svg>
+<script>
+
+    // The svg
+    var svg = d3.select("svg"),
+        width = +svg.attr("width"),
+        height = +svg.attr("height");
+    
+    // Map and projection
+    var projection = d3.geoMercator()
+        .scale(22000) // This is the zoom
+        .translate([31000, 15000])
+        ; // You have to play with these values to center your map
+
+
+    // Load external data and boot
+    d3.json("https://opendata.arcgis.com/datasets/7c7281ad652143518405cbde1561c585_0.geojson", function(data){
+    
+      // Draw the map
+      svg.append("g")
+          .selectAll("path")
+          .data(data.features)
+          .enter()
+          .append("path")
+              .attr("fill", "#69a2a2")
+              .attr("d", d3.geoPath()
+                  .projection(projection)
+              )
+              .attr("stroke", "white")
+    
+    })
+    
+    </script>
