@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+.byline {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    font-style: italic;
+}
+
+.source {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 12px;
+
+}</style>
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz"></div>
+<script>
+
+    // set the dimensions and margins of the graph
+    var margin = {top: 10, right: 30, bottom: 50, left: 60},
+        width = 1000 - margin.left - margin.right,
+        height = 600 - margin.top - margin.bottom;
+    
+    // append the svg object to the body of the page
+    var svg = d3.select("#my_dataviz")
+      .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform",
+              "translate(" + margin.left + "," + margin.top + ")");
+    
+    //Read the data
+    d3.csv("EV.csv", function(data) {
+        var formatPercent = d3.format(".0%");    
+      // Add X axis
+      var x = d3.scaleLinear()
+        .domain([-90, 50])
+        .range([ 0, width ]);
+      
+    
+    var nx = d3.scaleLinear()
+        .domain([0, .5])
+        .range([ 584.79, width ]);
+      svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(nx).ticks(5).tickFormat(formatPercent));
+
+    var nx2 = d3.scaleLinear()
+        .domain([.90, .0001])
+        .range([ 0, 584.79 ]);
+      svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(nx2).tickFormat(formatPercent));
+    
+      // Add Y axis
+      var y = d3.scaleLinear()
+        .domain([-.6, 2])
+        .range([ height, 0]);
+      svg.append("g")
+        .call(d3.axisLeft(y));
+    
+      // Add dots
+      svg.append('g')
+        .selectAll("dot")
+        .data(data)
+        .enter()
+        .append("circle")
+          .attr("cx", function (d) { return x(d.partisanLean); } )
+          .attr("cy", function (d) { return y(d.weight); } )
+          .attr("r", 12)
+          .style("fill", function(d){
+              if (d.partisanLean <= 0) {return "blue"}
+              else {return "red"}})
+          .style("stroke","black")
+        
+          
+
+           // Add label
+      svg.append('g')
+        .selectAll("label")
+        .data(data)
+        .enter()
+        .append("text")
+          .attr("x", function (d) { return x(d.partisanLean); } )
+          .attr("y", function (d) { return y(d.weight); } )
+          .attr("transform","translate(-7.5,5)")
+          .text(function(d) {return (d.abbr)})
+          .style("fill", function(d){
+              if (d.partisanLean <= 0) {return "white"}
+              else {return "black"}})
+          //.style("stroke","black")
+          .style("font-size","12px")
+
+          svg.append("text")
+          .attr("x",380)
+          .attr("y",580)
+          .text("Partisan Lean (<-- DEM --- REP -->) ")
+
+          svg.append("text")
+        .attr("x",0)
+        .attr("y",100)
+        .attr("transform","translate(-150,300)rotate(270)")
+        .text("Weight of Vote")
+
+        svg.append("text")
+        .attr("x",0)
+        .attr("y",100)
+        .attr("transform","translate(-130,340)rotate(270)")
+        .text("<-- WEAK --- STRONG -->")
+
+          svg.append('text')
+          .attr("x",280)
+          .attr("y",10)
+          .style("font-size","20px")
+          .style("font-style","italics")
+          .style("font-weight","bold")
+          .text("Weight of Individual Vote For Each State by Partisan Lean")
+
+          svg.append("line")
+          .attr("x1",585)
+          .attr("x2",585)
+          .attr("y1",20)
+          .attr("y2",550)
+          .attr("stroke","black")
+          .style("stroke-dasharray", ("3, 3"))
+
+          svg.append("line")
+          .attr("x1",0)
+          .attr("x2",900)
+          .attr("y1",423.5)
+          .attr("y2",423.5)
+          .attr("stroke","black")
+          .style("stroke-dasharray", ("3, 3"))
+
+          svg.append('text')
+    .attr('class', 'source')
+    .attr('y', height*1.08)
+    .attr('x', width*.9)
+    .attr('text-anchor', 'start')
+    .text('Source: New York Times, 2020')
+
+    
+  svg.append('text')
+    .attr('class', 'byline')
+    .attr('y', height*1.08)
+    .attr('x', width*.01)
+    .attr('text-anchor', 'middle')
+    .text('By: Geoffrey Dean')
+          
+    })
+    
+    </script>
