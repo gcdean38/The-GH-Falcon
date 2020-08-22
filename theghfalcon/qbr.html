@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style> /* set the CSS */
+
+body { font: 12px Arial;}
+
+path {
+    stroke: steelblue;
+    stroke-width: 2;
+    fill: none;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: grey;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+
+.legend {
+    font-size: 16px;
+    font-weight: bold;
+    text-anchor: middle;
+}
+text.source {
+            font-size: 10px;
+        }
+        
+        text.byline {
+            font-size: 12px;
+            font-style: italic;
+            font-weight: bold;
+            font-family: 'Courier New', Courier, monospace;
+        }
+    text.title {
+        font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+        font-size: 24px;
+        font-style: italic;
+        font-weight: bold;}
+
+</style>
+<body>
+
+<!-- load the d3.js library -->    
+<script src="https://d3js.org/d3.v4.min.js"></script>
+
+<script>
+
+// Set the dimensions of the canvas / graph
+var margin = {top: 30, right: 20, bottom: 70, left: 50},
+    width = 600 - margin.left - margin.right,
+    height = 300 - margin.top - margin.bottom;
+
+// Set the ranges
+var x = d3.scaleBand().rangeRound([60, width])
+var y = d3.scaleLinear().range([height, 0]);
+
+// Define the line
+var line = d3.line()	
+    .x(function(d) { return x(d.quarter); })
+    .y(function(d) { return y(d.qbr); });
+    
+// Adds the svg canvas
+var svg = d3.select("body")
+    .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+        .attr("transform", 
+              "translate(" + margin.left + "," + margin.top + ")");
+
+// Get the data
+d3.csv("qbr.csv", function(error, data) {
+    data.forEach(function(d) {
+		d.qbr = +d.qbr;
+	//d.quarter = +d.quarter
+    });
+
+    // Scale the range of the data
+    x.domain(data.map(function(d) { return d.quarter; }));
+    y.domain([0,158.3]).nice();
+
+    // Nest the entries by series
+    var dataNest = d3.nest()
+        .key(function(d) {return d.qb;})
+        .entries(data);
+
+    // set the colour scale
+    var color = d3.scaleOrdinal(["red","#b3995d"]);
+
+    legendSpace = width/dataNest.length; // spacing for the legend
+
+    // Loop through each series / key
+    dataNest.forEach(function(d,i) { 
+
+        svg.append("path")
+            .attr("class", "line")
+            .style("stroke", function() { // Add the colours dynamically
+                return d.color = color(d.key); })
+            .attr("d", line(d.values));
+
+        // Add the Legend
+        svg.append("text")
+            .attr("x", (legendSpace/2)+i*legendSpace)  // space legend
+            .attr("y", height + (margin.bottom/2)+ 5)
+            .attr("class", "legend")    // style the legend
+            .style("fill", function() { // Add the colours dynamically
+                return d.color = color(d.key); })
+            .text(d.key); 
+    });
+
+  // Add the X Axis
+  svg.append("g")
+      .attr("class", "axis")
+      .attr("transform", "translate(-60," + height + ")")
+      .call(d3.axisBottom(x).ticks(4));
+
+  // Add the Y Axis
+  svg.append("g")
+      .attr("class", "axis")
+      .call(d3.axisLeft(y));
+
+      svg.append("text")      // text label for chart Title
+.attr('class',"title")
+        .attr("x", width / 2 )
+        .attr("y",(margin.top*.1))
+        .style("text-anchor", "middle")
+        .style("text-decoration", "underline") 
+        .text("Quarterback Rating by Quarter");
+
+        svg.append('text')
+        .attr('class', 'source')
+        .attr('y', height*1.3)
+        .attr('x', width)
+        .attr('text-anchor', 'end')
+        .text('Source: Pro Football Reference, 2020')
+
+    
+	svg.append('text')
+		.attr('class', 'byline')
+		.attr('y', height*1.3)
+		.attr('x', width*.05)
+		.attr('text-anchor', 'middle')
+		.text('By: Geoffrey Dean')
+
+});
+
+</script>
+</body>

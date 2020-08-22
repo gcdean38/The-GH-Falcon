@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+    text.source {
+            font-size: 10px;
+        }
+        
+        text.byline {
+            font-size: 12px;
+            font-style: italic;
+            font-weight: bold;
+            font-family: 'Courier New', Courier, monospace;
+        }
+    text.title {
+        font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+        font-size: 24px;
+        font-style: italic;
+        font-weight: bold;
+    }
+body {
+  margin: 15px;
+  background-color: #F1F3F3    
+}
+.bar {
+	fill: #6F257F;
+}
+/*.axis path,
+.axis line {
+  fill: none;
+  stroke: #D4D8DA;
+  stroke-width: 1px;
+  shape-rendering: crispEdges;
+}*/
+.tick text {
+    font-size: 14px;
+}
+.grid line {
+    stroke: black;
+opacity: .5;
+}
+
+.toolTip {
+	position: absolute;
+  display: none;
+  min-width: 80px;
+  height: auto;
+  background: none repeat scroll 0 0 #ffffff;
+  border: 1px solid red;
+  padding: 5px;
+  text-align: center;
+}
+</style>
+<svg width="500" height="300"></svg>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+var svg = d3.select("svg"),
+    margin = {top: 60, right: 20, bottom: 50, left: 80},
+    width = +svg.attr("width") - margin.left - margin.right,
+    height = +svg.attr("height") - margin.top - margin.bottom;
+  
+var tooltip = d3.select("body").append("div").attr("class", "toolTip");
+
+
+
+var x = d3.scaleLinear().range([0, width]);
+var y = d3.scaleBand().rangeRound([height, 0]);
+//var parseTime = d3.timeParse("%Y");
+
+var g = svg.append("g")
+		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  
+d3.csv("rally.csv", function(error, data) {
+    
+  	if (error) throw error;
+      // format the data
+  data.forEach(function(d) {
+      d.deficit = +d.deficit;
+      //d.year = parseTime(d.year);
+      d.mov = +d.mov;
+      d.difference = +d.difference;
+     // d.opponent = d.opponent
+      console.log(data)
+      console.log(d.team)
+  });
+  	//data.sort(function(a, b) { return a.difference - b.difference; });
+  
+  	//x.domain([d3.min(data, function(d) { return d.difference; }), d3.max(data, function(d) { return d.difference; })]);
+    x.domain([-25,25]);
+    var length = function(d) {return Math.abs(x(d.mov)-x(d.deficit))};
+    //var length = function(d) {return x(d.Divisional)-x(d.Wild_Card)};
+
+   
+    y.domain(data.map(function(d) { return d.team; }));
+
+    g.selectAll(".bar")
+        .data(data)
+      .enter().append("rect")
+        .attr("class", "bar")
+        //.attr("x", function(d) { return x(d.Wild_Card)})
+        //.attr("dy",".15em")
+        .attr("x", function(d) {return x(d.deficit)})
+        .attr("height", 18)
+        .attr("y", function(d) { return y(d.team)+22.5; })
+       // .attr("width", function(d) { return x(d.difference); })
+        .attr("width", length)
+        .style("fill", "red")
+
+        .on("mousemove", function(d){
+            tooltip
+              .style("left", d3.event.pageX  +10+ "px")
+              .style("top", d3.event.pageY +19 + "px")
+              .style("display", "inline-block")
+              .html("<b>"+"<u>"+(d.round)+"</u>"+"</b>"+"</br>"+(d.difference) +" points in a row");
+        })
+    		.on("mouseout", function(d){ tooltip.style("display", "none");});
+
+
+            //add the x gridlines
+        svg.append("g")			
+      .attr("class", "grid")
+      .attr("transform", "translate(80,60)")
+      .call(d3.axisBottom(x)
+          .tickSize(height).ticks(12)
+          //.tickFormat("")
+          
+      )          
+
+
+  // add the Y gridlines
+  svg.append("g")			
+      .attr("class", "grid")
+      .attr("transform", "translate(80,60)")
+      .call(d3.axisLeft(y)
+          .tickSize(-width).ticks(10)
+          //tickFormat(d3.format("d"))
+      )/*.style("opacity", function (d) {
+          if (d.year>=1999) {return 1}
+          else {return 0}})*/
+    d3.selectAll(".grid").lower()
+
+  /*  g.append("rect").attr("x",320).attr("y",height*1.055)
+        .attr("width", 10).attr("height",10).style("fill", "red")
+g.append("rect").attr("x",460).attr("y",height*1.055)
+    .attr("width", 10).attr("height",10).style("fill", "green")
+g.append("text").attr("x", 340).attr("y", height*1.07)
+    .text("Decrease").style("font-size", "15px").attr("alignment-baseline","middle")
+g.append("text").attr("x", 480).attr("y", height*1.07)
+    .text("Increase").style("font-size", "15px").attr("alignment-baseline","middle")*/
+
+
+    g.append("text")      // text label for chart Title
+.attr('class',"title")
+        .attr("x", width / 2 )
+        .attr("y", 0 - (margin.top/2))
+        .style("text-anchor", "middle")
+        .style("text-decoration", "underline") 
+        .text("Chief's Playoff Comebacks");
+
+        g.append('text')
+        .attr('class', 'source')
+        .attr('y', height*1.2)
+        .attr('x', width)
+        .attr('text-anchor', 'end')
+        .text('Source: Pro Football Reference, 2020')
+
+    
+	g.append('text')
+		.attr('class', 'byline')
+		.attr('y', height*1.2)
+		.attr('x', width*.05)
+		.attr('text-anchor', 'middle')
+		.text('By: Geoffrey Dean')
+
+});
+</script>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+    text.source {
+            font-size: 10px;
+        }
+        
+        text.byline {
+            font-size: 12px;
+            font-style: italic;
+            font-weight: bold;
+            font-family: 'Courier New', Courier, monospace;
+        }
+    text.title {
+        font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+        font-size: 24px;
+        font-style: italic;
+        font-weight: bold;
+    }
+    text.data {
+        font-size: 12px;
+    }
+body {
+  margin: 15px;
+  background-color: #F1F3F3    
+}
+
+/*.axis path,
+.axis line {
+  fill: none;
+  stroke: #D4D8DA;
+  stroke-width: 1px;
+  shape-rendering: crispEdges;
+}*/
+.tick text {
+    font-size: 14px;
+}
+.grid line {
+    stroke: black;
+opacity: .5;
+}
+
+.toolTip {
+	position: absolute;
+  display: none;
+  min-width: 80px;
+  height: auto;
+  background: none repeat scroll 0 0 #ffffff;
+  border: 1px solid blue;
+  padding: 14px;
+  text-align: center;
+}
+</style>
+<svg width="1060" height="550"></svg>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+var svg = d3.select("svg"),
+    margin = {top: 60, right: 20, bottom: 50, left: 80},
+    width = +svg.attr("width") - margin.left - margin.right,
+    height = +svg.attr("height") - margin.top - margin.bottom;
+  
+var tooltip = d3.select("body").append("div").attr("class", "toolTip");
+
+
+
+var x = d3.scaleLinear().range([0, width]);
+var y = d3.scaleLinear().range([height, 0]);
+
+var g = svg.append("g")
+		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  
+d3.csv("twoCharts.csv", function(error, data) {
+    //2019HR
+    svg.append("rect")
+    .attr("class","bar")
+    .attr("x",100)
+    .attr("y",100)
+    .attr("width",113.1)
+    .attr("height",50)
+    .attr("fill","#4286A8")
+    svg.append("text")
+    .attr("class","data")
+    .attr("x",148.1)
+    .attr("y",127.5)
+    .style("text-anchor","left")
+    .text("1.131 HR/G")
+    .attr("fill","white")
+//2020HR
+    svg.append("rect")
+    .attr("class","bar")
+    .attr("x",100)
+    .attr("y",160)
+    .attr("width",125.3)
+    .attr("height",50)
+    .attr("fill","#60B937")
+    svg.append("text")
+    .attr("class","data")
+    .attr("x",160.3)
+    .attr("y",187.5)
+    .style("text-anchor","left")
+    .text("1.253 HR/G")
+    .attr("fill","white")
+//2019SO
+    svg.append("rect")
+    .attr("class","bar")
+    .attr("x",100)
+    .attr("y",270)
+    .attr("width",889.1)
+    .attr("height",50)
+    .attr("fill","#4286A8")
+    svg.append("text")
+    .attr("class","data")
+    .attr("x",920.1)
+    .attr("y",297.5)
+    .style("text-anchor","left")
+    .text("8.891 SO/G")
+    .attr("fill","white")
+//2020S0
+    svg.append("rect")
+    .attr("class","bar")
+    .attr("x",100)
+    .attr("y",330)
+    .attr("width",826.9)
+    .attr("height",50)
+   .attr("fill","#60B937")
+    svg.append("text")
+    .attr("class","data")
+    .attr("x",860.9)
+    .attr("y",357.5)
+    .style("text-anchor","left")
+    .text("8.269 SO/G")
+    .attr("fill","white")
+//key
+    svg.append("rect")
+    .attr("class","key")
+    .attr("x",430)
+    .attr("y",400)
+    .attr("height",30)
+    .attr("width",30)
+    .attr("fill","#4286A8")
+    svg.append("text")
+    .attr("class",'label')
+    .attr("x",465)
+    .attr("y",419.5)
+    .text("2019")
+    .attr("fill","black")
+
+    svg.append("rect")
+    .attr("class","key")
+    .attr("x",535)
+    .attr("y",400)
+    .attr("height",30)
+    .attr("width",30)
+    .attr("fill","#60B937")
+    svg.append("text")
+    .attr("class",'label')
+    .attr("x",570)
+    .attr("y",419.5)
+    .text("2020")
+    .attr("fill","black")
+//labels
+    svg.append("text")
+    .attr("x",35)
+    .attr("y",-170)
+    .text("HOME RUNS")
+    .style("font-style","italic")
+    .style("font-weight",'bold')
+    .style("font-size","20px")
+    .attr("transform","translate(250,250)rotate(-90)")
+   
+    svg.append("text")
+    .attr("x",-135)
+    .attr("y",-170)
+    .text("STRIKEOUTS")
+    .style("font-style","italic")
+    .style("font-weight",'bold')
+    .style("font-size","20px")
+    .attr("transform","translate(250,250)rotate(-90)")
+    //axes
+    var x = d3.scaleLinear()
+    .domain([0, 10])
+    .range([ 0, 1000]);
+  svg.append("g")
+    .attr("transform", "translate(100," + height*.55 + ")")
+    .call(d3.axisBottom(x)
+    .ticks(15))
+    .selectAll("text")
+      .attr("transform", "translate(10,0)")
+      .style("text-anchor", "end")
+
+    svg.append("g")
+    .attr("transform", "translate(100," + height*.55 + ")")
+    .call(d3.axisTop(x)
+    .ticks(15))
+    .selectAll("text")
+      .attr("transform", "translate(-10,0)")
+      .style("fill", "none")
+
+
+
+    g.append("text")      // text label for chart Title
+.attr('class',"title")
+        .attr("x", width / 2 )
+        .attr("y", 0 - (margin.top/2))
+        .style("text-anchor", "middle")
+        .style("text-decoration", "underline") 
+        .text("Effect of COVID-19 Regulations on MLB Performance (2019-2020)");
+
+        g.append('text')
+        .attr('class', 'source')
+        .attr('y', height*.9)
+        .attr('x', width)
+        .attr('text-anchor', 'end')
+        .text('Source: TeamRankings.com, 2020')
+
+    
+	g.append('text')
+		.attr('class', 'byline')
+		.attr('y', height*.9)
+		.attr('x', width*.05)
+		.attr('text-anchor', 'middle')
+		.text('By: Geoffrey Dean')
+
+});
+</script>
+    
+    
+   
