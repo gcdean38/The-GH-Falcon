@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+    .byline {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 12px;
+        font-style: italic;
+    }
+    
+    .source {
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 12px;
+    
+    }
+    </style>
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz"></div>
+<script>
+
+    // set the dimensions and margins of the graph
+    var margin = {top: 30, right: 30, bottom: 60, left: 60},
+        width = 660 - margin.left - margin.right,
+        height = 600 - margin.top - margin.bottom;
+    
+    // append the svg object to the body of the page
+    var svg = d3.select("#my_dataviz")
+      .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform",
+              "translate(" + margin.left + "," + margin.top + ")");
+    
+    //Read the data
+    d3.csv("sweeps.csv", function(data) {
+    
+      // Add X axis
+      var x = d3.scaleLinear()
+        .domain([0, 30])
+        .range([ 0, width ]);
+      svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x));
+    
+      // Add Y axis
+      var y = d3.scaleLinear()
+        .domain([0, 70])
+        .range([ height, 0]);
+      svg.append("g")
+        .call(d3.axisLeft(y));
+    
+      // Add dots
+      svg.append('g')
+        .selectAll("dot")
+        .data(data)
+        .enter()
+        .append("circle")
+          .attr("cx", function (d) { return x(+d.sweeps); } )
+          .attr("cy", function (d) { return y(+d.sweepYears); } )
+          .attr("r", function (d) {return (+d.playoffWins/10)})
+          .style("fill", "none")//function (d) {return (d.color)})
+          .style("stroke","black")
+
+          svg.append('g')
+        .selectAll("label")
+        .data(data)
+        .enter()
+        .append("text")
+          .attr("x", function (d) { return x(d.sweeps); } )
+          .attr("y", function (d) { return y(d.sweepYears); } )
+          .attr("transform","translate(-12.2,4.4)")
+          .text(function(d) {return (d.team)})
+          .style("fill", function(d){
+              if (d.team == "TOR") {return "red"}
+              else {return "black"}})
+          //.style("stroke","black")
+          .style("font-size","12px")
+          .style("font-weight", function(d){
+              if (d.team == "TOR") {return "bold"}
+              else {return "none"}})
+
+          svg.append('g')
+          .append("circle")
+          .attr("cx",460)
+          .attr("cy",220)
+          .attr("r",40)
+          .attr("fill","none")
+          .attr("stroke","black")
+
+          svg.append('g')
+          .append("circle")
+          .attr("cx",460)
+          .attr("cy",155)
+          .attr("r",20)
+          .attr("fill","none")
+          .attr("stroke","black")
+
+          svg.append('g')
+          .append("circle")
+          .attr("cx",460)
+          .attr("cy",120)
+          .attr("r",10)
+          .attr("fill","none")
+          .attr("stroke","black")
+
+          svg.append('g')
+          .append("circle")
+          .attr("cx",460)
+          .attr("cy",100)
+          .attr("r",5)
+          .attr("fill","none")
+          .attr("stroke","black")
+
+          svg.append("g")
+          .append("text")
+          .attr("x",510)
+          .attr("y",225)
+          .attr("fill","black")
+          .text("400 Wins")
+
+          svg.append("g")
+          .append("text")
+          .attr("x",510)
+          .attr("y",160)
+          .attr("fill","black")
+          .text("200 Wins")
+
+          svg.append("g")
+          .append("text")
+          .attr("x",510)
+          .attr("y",125)
+          .attr("fill","black")
+          .text("100 Wins")
+
+          svg.append("g")
+          .append("text")
+          .attr("x",510)
+          .attr("y",105)
+          .attr("fill","black")
+          .text("50 Wins")
+
+
+
+
+svg.append("text")
+.attr("x",225)
+.attr("y",0)
+.attr("fill","black")
+.style("font-style","italic")
+.style("font-weight","bold")
+.style("font-size","24px")
+.text("Long Time Coming") 
+
+svg.append("text")
+        .attr("x",45)
+        .attr("y",105)
+        .attr("transform","translate(-150,300)rotate(270)")
+        .text("Years Since Last Sweep")
+
+svg.append("text")
+.attr("x", width/2)
+.attr("y",height*1.1)
+.text("Sweeps in Team Playoff History")
+.attr("text-anchor","middle")
+
+svg.append('text')
+    .attr('class', 'source')
+    .attr('y', height*1.1)
+    .attr('x', width*.82)
+    .attr('text-anchor', 'start')
+    .text('Source: NBA.com, 2020')
+
+    
+  svg.append('text')
+    .attr('class', 'byline')
+    .attr('y', height*1.1)
+    .attr('x', width*.075)
+    .attr('text-anchor', 'middle')
+    .text('By: Geoffrey Dean')
+    
+    })
+    
+    </script>
