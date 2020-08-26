@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+    .byline {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 12px;
+        font-style: italic;
+    }
+    
+    .source {
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 12px;
+    
+    }
+    </style>
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz"></div>
+<script>
+
+    // set the dimensions and margins of the graph
+    var margin = {top: 30, right: 30, bottom: 70, left: 60},
+        width = 1114 - margin.left - margin.right,
+        height = 710 - margin.top - margin.bottom;
+    
+    // append the svg object to the body of the page
+    var svg = d3.select("#my_dataviz")
+      .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform",
+              "translate(" + margin.left + "," + margin.top + ")");
+
+    var numformat = d3.format(".0f")
+				
+//raptors   
+rFG = function getRandomIntInclusive(min, max) {
+  min = Math.floor(36);
+  max = Math.ceil(44);
+  return Math.floor(Math.random() * (max - min + 1) + min); //The maximum is inclusive and the minimum is inclusive 
+}
+rTP = function getRandomIntInclusive(min, max) {
+  max = Math.ceil(18);
+  min = Math.floor(13);
+  return Math.floor(Math.random() * (max - min + 1) + min); //The maximum is inclusive and the minimum is inclusive 
+}
+rFT = function getRandomIntInclusive(min, max) {
+    max = Math.ceil(25);
+  min = Math.floor(16);
+  return Math.floor(Math.random() * (max - min + 1) + min); //The maximum is inclusive and the minimum is inclusive 
+}
+coFG = function getRandomIntInclusive(min, max) {
+  max = Math.ceil(40);
+  min = Math.floor(34);
+  return Math.floor(Math.random() * (max - min + 1) + min); //The maximum is inclusive and the minimum is inclusive 
+}
+coTP = function getRandomIntInclusive(min, max) {
+    max = Math.ceil(13);
+  min = Math.floor(8);
+  return Math.floor(Math.random() * (max - min + 1) + min); //The maximum is inclusive and the minimum is inclusive 
+}
+coFT = function getRandomIntInclusive(min, max) {
+    max = Math.ceil(27);
+  min = Math.floor(19);
+  return Math.floor(Math.random() * (max - min + 1) + min); //The maximum is inclusive and the minimum is inclusive 
+}
+
+//celtics
+cFG = function getRandomIntInclusive(min, max) {
+    max = Math.ceil(44);
+  min = Math.floor(38);
+  return Math.floor(Math.random() * (max - min + 1) + min); //The maximum is inclusive and the minimum is inclusive 
+}
+cTP = function getRandomIntInclusive(min, max) {
+    max = Math.ceil(16);
+  min = Math.floor(11);
+  return Math.floor(Math.random() * (max - min + 1) + min); //The maximum is inclusive and the minimum is inclusive 
+}
+cFT = function getRandomIntInclusive(min, max) {
+    max = Math.ceil(24);
+  min = Math.floor(18);
+  return Math.floor(Math.random() * (max - min + 1) + min); //The maximum is inclusive and the minimum is inclusive 
+}
+roFG = function getRandomIntInclusive(min, max) {
+    max = Math.ceil(39);
+  min = Math.floor(34);
+  return Math.floor(Math.random() * (max - min + 1) + min); //The maximum is inclusive and the minimum is inclusive 
+}
+roTP = function getRandomIntInclusive(min, max) {
+    max = Math.ceil(16);
+  min = Math.floor(13);
+  return Math.floor(Math.random() * (max - min + 1) + min); //The maximum is inclusive and the minimum is inclusive 
+}
+roFT = function getRandomIntInclusive(min, max) {
+    max = Math.ceil(22);
+  min = Math.floor(15);
+  return Math.floor(Math.random() * (max - min + 1) + min); //The maximum is inclusive and the minimum is inclusive 
+}
+
+raptors = (rTP()*3+(rFG()-rTP())*2+rFT()+(coTP()*3+(coFG()-coTP())*2+coFT()))/2
+celtics = (roTP()*3+(roFG()-roTP())*2+roFT()+(cTP()*3+(cFG()-cTP())*2+cFT()))/2
+svg.append('text')
+.attr("x",100)
+.attr("y",100)
+.attr("stroke","black")
+.text("TOR: " +numformat(raptors))
+svg.append('text')
+.attr("x",100)
+.attr("y",120)
+.attr("stroke","black")
+.text("BOS: " +numformat(celtics))     
+    </script>
