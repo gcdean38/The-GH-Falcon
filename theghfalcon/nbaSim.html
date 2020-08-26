@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
+<button value="Refresh Page" x="100" onClick="window.location.reload();">Sim Again</button>
 <style>
     .byline {
         font-family: 'Courier New', Courier, monospace;
@@ -11,6 +12,13 @@
         font-family: 'Times New Roman', Times, serif;
         font-size: 12px;
     
+    }
+
+    button {
+     position: "aboslute";
+      left: 100px;
+      top: 150px;
+
     }
     </style>
 <!-- Load d3.js -->
@@ -35,8 +43,10 @@
               "translate(" + margin.left + "," + margin.top + ")");
 
     var numformat = d3.format(".0f")
-				
-//raptors   
+var r=0
+var i;
+for (i = 0; i <7; i++) {			
+//raptors 
 rFG = function getRandomIntInclusive(min, max) {
   min = Math.floor(36);
   max = Math.ceil(44);
@@ -102,14 +112,70 @@ roFT = function getRandomIntInclusive(min, max) {
 
 raptors = (rTP()*3+(rFG()-rTP())*2+rFT()+(coTP()*3+(coFG()-coTP())*2+coFT()))/2
 celtics = (roTP()*3+(roFG()-roTP())*2+roFT()+(cTP()*3+(cFG()-cTP())*2+cFT()))/2
+svg.append("text")
+.attr("x",100)
+.attr("y",250+i*15)
+.attr("fill","black")
+.attr("opacity",function(d){
+  if(i==6){return 1}
+  else{return 0}
+})
+.text(
+result = function (d) {
+if (raptors>celtics){return r+=1}
+else {return r+=0}
+})
+
+svg.append("text")
+.attr("x",300)
+.attr("y",250+i*15)
+.attr("fill","black")
+.attr("opacity",function(d){
+  if(i==6){return 1}
+  else{return 0}
+})
+.text(
+result = function (d) {
+if (raptors>celtics){return r+=1}
+else {return r+=0}
+})
+}
+
+//scoreboard
 svg.append('text')
 .attr("x",100)
-.attr("y",100)
+.attr("y",110)
 .attr("stroke","black")
+.attr("font-size","30px")
 .text("TOR: " +numformat(raptors))
+
+svg.append("image")
+.attr("xlink:href","https://sportslogohistory.com/wp-content/uploads/2016/SLH/nba_alternate/toronto_raptors_2015-present-a.png")
+.attr("x",60)
+.attr("y",85)
+.attr("height",30)
+.attr("width",30)
+
 svg.append('text')
 .attr("x",100)
-.attr("y",120)
+.attr("y",155)
+.attr("font-size","30px")
 .attr("stroke","black")
-.text("BOS: " +numformat(celtics))     
+.text("BOS: " +numformat(celtics))  
+
+svg.append("image")
+.attr("xlink:href","https://www.nba.com/resources/static/team/v2/celtics/media/NewAlt_type_grn_1024.png")
+.attr("x",60)
+.attr("y",130)
+.attr("height",30)
+.attr("width",30)
+
+/*var r=0
+var c = 0
+var i;
+for (i = 0; i < 50000; i++) {
+  if (raptors>celtics){return r+1}
+  else {return c+1}
+}*/
+
     </script>
